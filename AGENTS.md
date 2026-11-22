@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Store each authenticated owner's finance data as a versioned JSON document in Cloud with owner-only RLS; atomic saves and restores prevent partial financial updates and detect concurrent edits.
+- Keep finance amounts as integer cents and centralize totals, recurrence, settlement and backup validation in the shared finance domain module to avoid rounding errors and duplicate receipts.
+- Public dashboard routes render no private data during SSR; authenticated server functions read and write the vault only after a Google session is established.
+- Derive monthly automatic entries and overdue statuses from stored dates; manual recurring items affect balances only after settlement, without background polling.
