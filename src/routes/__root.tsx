@@ -80,9 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     // twitter:image here: every page without its own would inherit the root's preview image.
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Minhas Finanças" },
       { name: "description", content: "Seu controle financeiro pessoal, simples e seguro." },
+      { name: "theme-color", content: "#0b1210" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Minhas Finanças" },
       { property: "og:title", content: "Minhas Finanças" },
       { property: "og:description", content: "Seu controle financeiro pessoal, simples e seguro." },
       { property: "og:type", content: "website" },
@@ -95,6 +100,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/icons/icon.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -119,6 +127,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    if (!import.meta.env.PROD || typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    void navigator.serviceWorker.register("/sw.js").catch((err) => {
+      console.warn("[PWA] Service worker registration failed:", err);
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
